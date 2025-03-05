@@ -11,9 +11,9 @@ import _ from "../src/index"
 
 describe('判断函数测试', () => {
     it('isArray', () => {
-        expect(_.isArray([1])).toBeTruthy();
-        expect(_.isArray({})).toBeFalsy();
-        expect(_.isArray(1)).toBeFalsy();
-        expect(_.isArray("")).toBeFalsy();
+        expect(_.isArray([1])).toBeTruthy(); //true
+        expect(_.isArray({})).toBeFalsy(); //false
+        expect(_.isArray(1)).toBeFalsy(); //false
+        expect(_.isArray("")).toBeFalsy(); //false
     });
 });

@@ -98,7 +98,9 @@ class U extends F implements u {
     }
 
     isObject(value: any) {
-        return value != null && typeof value == 'object';
+
+
+        return value != null && typeof value === 'object' && !(value instanceof  Array);
     }
 
     isArray(value: any) {

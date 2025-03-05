@@ -3,8 +3,16 @@
 *
 * 大量的使用了this  后期没办法修改-------
  */
-import tag from "./tag"
-import {nativeObjectToString, objectToString, isPrototype, baseCreate, getPrototype, getRawTag} from "./tag"
+import tag, {baseAssignIn} from "./tag"
+import {
+    nativeObjectToString,
+    objectToString,
+    isPrototype,
+    baseCreate,
+    getPrototype,
+    getRawTag,
+    baseIsArguments
+} from "./tag"
 
 const {
     argsTag,
@@ -55,6 +63,8 @@ interface u {
     isNil(value: any): boolean
 
     isBuffer(value: any): boolean
+
+    isArguments(value: any): boolean
 }
 
 interface e {
@@ -161,7 +171,7 @@ class F {
 
     }
 
-    copySymbolsIn(value: any,) {
+    copySymbolsIn(value: any, baseAssignIn1: any) {
 
     }
 
@@ -235,14 +245,15 @@ export class U extends F implements u {
 
     }
 
-    isArguments() {
-
+    isArguments(value: any) {
+        return baseIsArguments(value)
     }
-
 
 }
 
-class E extends U implements e {
+class E
+    extends U
+    implements e {
     constructor() {
         super()
     }
@@ -316,6 +327,7 @@ class E extends U implements e {
             if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
 
                 //  result is  Object     {}    || clone {}
+
                 result = isFlat || isFunc ? {} : this.initCloneObject(value);
 
                 /**

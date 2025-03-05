@@ -2,7 +2,16 @@ import {describe, it, expect} from 'vitest';
 import _ from "../src/index"
 
 
-import {baseCreate, isPrototype, isFunction, baseGetTag, getRawTag ,isLength} from "../src/tag"
+import {
+    baseCreate,
+    isPrototype,
+    isFunction,
+    baseGetTag,
+    getRawTag,
+    isLength,
+    isObjectLike,
+    baseIsArguments, baseTimes, nativeKeysIn,
+} from "../src/tag"
 
 
 describe('判断函数测试 ---------', () => {
@@ -82,22 +91,30 @@ describe('判断函数测试 ---------', () => {
 
 describe('函数测试---------', () => {
 
+
     //  是否是原型对象
     it('isPrototype', () => {
         expect.soft(isPrototype({})).toBeFalsy()
     });
 
 
+
+
+
+
     it('baseCreate', () => {
         expect.soft(baseCreate({a: `name`})).toStrictEqual({});
     });
+
+
 
     it('isFunction', () => {
         // @ts-ignore
         const p = Proxy
 
         // @ts-ignore
-        async function f() {}
+        async function f() {
+        }
 
         expect.soft(isFunction(f)).toBeTruthy();
         expect.soft(isFunction(p)).toBeTruthy();
@@ -105,8 +122,9 @@ describe('函数测试---------', () => {
 
     });
 
-    it('baseGetTag', () => {
 
+
+    it('baseGetTag', () => {
 
 
         expect.soft(baseGetTag(undefined)).toStrictEqual(`[object Undefined]`);
@@ -117,17 +135,13 @@ describe('函数测试---------', () => {
         expect.soft(baseGetTag(true)).toStrictEqual(`[object Boolean]`);
 
 
-
-
     });
 
 
 
+
     it('isLength', () => {
-
-
         expect.soft(isLength(1)).toBeTruthy()
-
         expect.soft(isLength(-11)).toBeFalsy();
 
     });
@@ -136,13 +150,47 @@ describe('函数测试---------', () => {
 
 
     it('getRawTag', () => {
-
-
-        var a = 1;
-        expect.soft(getRawTag(a)).toStrictEqual(`[object Number]`);
-
-
-
+        expect.soft(getRawTag(1)).toStrictEqual(`[object Number]`);
     });
+
+
+
+
+
+
+    it('isObjectLike', () => {
+        expect.soft(isObjectLike([])).toBeTruthy();
+    });
+
+
+
+    it('baseIsArguments', () => {
+        function test() {
+            return arguments
+        }
+
+        expect.soft(baseIsArguments(test())).toBeTruthy();
+    });
+
+
+    it("isArguments", () => {
+        expect.soft(_.isArguments((function () {
+            return arguments
+        })())).toBeTruthy();
+    })
+
+
+    it("baseTimes", () => {
+        const arr = [1, 2, 3]
+        expect.soft(baseTimes(arr.length, String)).toStrictEqual([`0`, `1`, `2`])
+    })
+
+
+    it("nativeKeysIn", () => {
+        expect.soft(nativeKeysIn({name: `test`, age: `18`})).toStrictEqual([`name`, `age`])
+    })
+
+
+
 
 });

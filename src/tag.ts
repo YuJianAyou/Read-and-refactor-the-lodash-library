@@ -1,4 +1,4 @@
-import {U} from "./index"
+import _ from "../src/index"
 
 
 /**
@@ -36,9 +36,6 @@ export const argsTag = "[object Arguments]",
     symbolTag = "[object Symbol]",
     weakMapTag = "[object WeakMap]",
     weakSetTag = "[object WeakSet]";
-
-
-import _ from "../src/index"
 
 
 // @ts-ignore
@@ -122,24 +119,42 @@ export const objectToString = (value: any) => {
 }
 
 
+export function baseAssignValue(object, key, value) {
+    if (key == "__proto__" && Object.defineProperty) {
+        Object.defineProperty(object, key, {
+            configurable: true,
+            enumerable: true,
+            value: value,
+            writable: true,
+        });
+    } else {
+        object[key] = value;
+    }
+}
+
+
+export function assignValue(object, key, newValue) {
+
+}
+
 function copyObject(source, props, object, customizer) {
 
 
-    var isNew = !object;
+    const isNew = !object;
 
 
     object || (object = {});
 
 
-    var index = -1,
-        length = props.length;
+    let index = 0;
+    const length = props.length;
 
 
-    while (++index < length) {
-        var key = props[index];
+    for (; index < length;) {
+        const key = props[index];
 
 
-        var newValue = customizer
+        let newValue = customizer
             ? customizer(object[key], source[key], key, object, source)
             : undefined;
 
@@ -147,28 +162,21 @@ function copyObject(source, props, object, customizer) {
         if (newValue === undefined) {
             newValue = source[key];
         }
-
-
         if (isNew) {
-
             baseAssignValue(object, key, newValue);
-
-
         } else {
-
             assignValue(object, key, newValue);
 
         }
     }
     return object;
-
-
 }
 
 
 /**
- *
+ *@baseGetTag
  * @param value
+ * @returns  `string` [object Object]
  */
 export function baseGetTag(value) {
 
@@ -179,7 +187,6 @@ export function baseGetTag(value) {
 
     /**
      * 这个逻辑是  symToStringTag  在 Object  是否有这个属性
-     *
      */
     return symToStringTag && symToStringTag in Object(value)
         ? getRawTag(value)
@@ -270,21 +277,56 @@ export function isLength(value: number) {
 }
 
 
-function isObjectLike(value) {
+
+
+/**
+ * @isObjectLike
+ * @param value  any
+ * 判断是否是object 引用类型
+ * @returns  boolean
+ */
+export function isObjectLike(value: any) {
     return value != null && typeof value == "object";
 }
 
 
-export function baseIsArguments(value) {
 
+/**
+ * @baseIsArguments
+ * @param value  any
+ * 判断是否 一个引用类型 是否是 argsTag
+ * @returns  boolean
+ */
+export function baseIsArguments(value: any) {
     return isObjectLike(value) && baseGetTag(value) == argsTag;
+}
+
+
+
+export function isTypedArray(value: any) {
 
 }
 
 
+/**
+ * @baseTimes
+ * @param n  `number
+ * @param S  `String   StringConstructor
+ * @returns  `Array<string>
+ */
+
+export function baseTimes(n: number, S: StringConstructor) {
+    const result = Array(n);
+    let index = 0;
+    for (; index < n; index++) {
+        result[index] = S(index);
+    }
+    return result;
+}
+
 function arrayLikeKeys(value, inherited) {
     const isArr = _.isArray(value),
-        isArg = !isArr && isArguments(value),
+        isArg = !isArr && _.isArguments(value),
         isBuff = !isArr && !isArg && _.isBuffer(value),
         isType = !isArr && !isArg && !isBuff && isTypedArray(value),
         skipIndexes = isArr || isArg || isBuff || isType,
@@ -292,7 +334,7 @@ function arrayLikeKeys(value, inherited) {
         length = result.length;
 
 
-    for (var key in value) {
+    for (let key in value) {
         if (
             (inherited || hasOwnProperty.call(value, key)) &&
             !(
@@ -322,24 +364,72 @@ function arrayLikeKeys(value, inherited) {
  * @param value any
  * @isLength
  */
-
-function isArrayLike(value) {
+export function isArrayLike(value: any) {
     return value != null && isLength(value.length) && !isFunction(value);
 }
 
-export function keysIn(object) {
 
 
-    return isArrayLike(object)
-        ? arrayLikeKeys(object, true)
-        : baseKeysIn(object);
+/**
+ * @nativeKeysIn
+ * @param object  `any`
+ * @retuns result  `Array<string> | []`
+ */
 
-
+export function nativeKeysIn(object: any) {
+    const result = [];
+    if (object != null) {
+        for (let key in Object(object)) {
+            result.push(key);
+        }
+    }
+    return result;
 }
 
 
-export function baseAssignIn(object, source) {
+export function baseKeysIn(object: any) {
 
+
+
+    if (!_.isObject(object)) {
+        return nativeKeysIn(object);
+    }
+
+
+
+    let isProto = isPrototype(object),
+        result = [];
+
+
+    for (let  key in object) {
+
+
+        if (
+            !(
+                key == "constructor" &&
+                (isProto || !Object.hasOwnProperty.call(object, key))
+            )
+        ) {
+            result.push(key);
+        }
+    }
+
+
+    return result;
+}
+
+
+export function keysIn(object: any) {
+    return isArrayLike(object)
+        ? arrayLikeKeys(object, true)
+        : baseKeysIn(object);
+}
+
+
+
+
+
+export function baseAssignIn(object, source) {
     return object && copyObject(source, keysIn(source), object);
 }
 

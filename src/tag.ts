@@ -1,17 +1,16 @@
 import _ from "../src/index"
 
-
 /**
  * javascript -
  * Object.getPrototypeOf(value).toString()  会得到js 以下的数据类型
  * @param * string
  */
 
-
 export const INFINITY = 1 / 0,
     MAX_SAFE_INTEGER = 9007199254740991,
     MAX_INTEGER = 1.7976931348623157e308,
     NAN = 0 / 0;
+
 
 
 export const argsTag = "[object Arguments]",
@@ -37,21 +36,13 @@ export const argsTag = "[object Arguments]",
     weakMapTag = "[object WeakMap]",
     weakSetTag = "[object WeakSet]";
 
-
 // @ts-ignore
 const symToStringTag = Symbol ? Symbol.toStringTag : undefined;
-
 
 const arrayProto = Array.prototype;
 const funcProto = Function.prototype;
 const objectProto = Object.prototype;
 const objectCreate = Object.create;
-
-/**
- * @isPrototype
- * @param value any
- * @returns  boolean
- */
 
 
 export const baseCreate = (function () {
@@ -81,11 +72,12 @@ export const baseCreate = (function () {
     }
 })()
 
+
 /**
  * @isPrototype 函数判断对象是否为原型对象  Object.prototype  为原型对象
- * @param value  any
+ * @param value any
+ * @returns  boolean
  */
-
 export function isPrototype(value: any) {
     /**
      * @ctor  function constructor 构造函数  value =  value.constructor
@@ -96,6 +88,12 @@ export function isPrototype(value: any) {
     return value === proto;
 }
 
+
+
+/**
+ * @nativeObjectToString  Object.prototype.toString
+ * @returns  `string
+ */
 export const nativeObjectToString = objectProto.toString;
 
 
@@ -104,7 +102,7 @@ export const nativeObjectToString = objectProto.toString;
  * @param arg  any
  * Object(1)  会得到一个Object 包装后的类型  Number.value  === 1   true
  */
-export const getPrototype = (arg: any) => {
+export function getPrototype  (arg: any) {
     return Object.getPrototypeOf(Object(arg))
 }
 
@@ -114,7 +112,7 @@ export const getPrototype = (arg: any) => {
  * @param value
  * @return  string  `[Object object]`
  */
-export const objectToString = (value: any) => {
+export  function objectToString(value: any)  {
     return nativeObjectToString.call(value);
 }
 
@@ -135,41 +133,6 @@ export function baseAssignValue(object, key, value) {
 
 export function assignValue(object, key, newValue) {
 
-}
-
-function copyObject(source, props, object, customizer) {
-
-
-    const isNew = !object;
-
-
-    object || (object = {});
-
-
-    let index = 0;
-    const length = props.length;
-
-
-    for (; index < length;) {
-        const key = props[index];
-
-
-        let newValue = customizer
-            ? customizer(object[key], source[key], key, object, source)
-            : undefined;
-
-
-        if (newValue === undefined) {
-            newValue = source[key];
-        }
-        if (isNew) {
-            baseAssignValue(object, key, newValue);
-        } else {
-            assignValue(object, key, newValue);
-
-        }
-    }
-    return object;
 }
 
 
@@ -200,11 +163,8 @@ export function baseGetTag(value) {
  * @getRawTag
  * @param value any
  * @returns  `string`  tag
- *
- *
- * ----- luo
  */
-export function getRawTag(value) {
+export function getRawTag(value :any) {
     // hasOwnProperty  是否有这个属性
     /**
      * @tag     String   | Undefined
@@ -277,8 +237,6 @@ export function isLength(value: number) {
 }
 
 
-
-
 /**
  * @isObjectLike
  * @param value  any
@@ -288,7 +246,6 @@ export function isLength(value: number) {
 export function isObjectLike(value: any) {
     return value != null && typeof value == "object";
 }
-
 
 
 /**
@@ -302,7 +259,6 @@ export function baseIsArguments(value: any) {
 }
 
 
-
 export function isTypedArray(value: any) {
 
 }
@@ -314,7 +270,6 @@ export function isTypedArray(value: any) {
  * @param S  `String   StringConstructor
  * @returns  `Array<string>
  */
-
 export function baseTimes(n: number, S: StringConstructor) {
     const result = Array(n);
     let index = 0;
@@ -323,6 +278,8 @@ export function baseTimes(n: number, S: StringConstructor) {
     }
     return result;
 }
+
+
 
 function arrayLikeKeys(value, inherited) {
     const isArr = _.isArray(value),
@@ -370,12 +327,12 @@ export function isArrayLike(value: any) {
 
 
 
+
 /**
  * @nativeKeysIn
  * @param object  `any`
  * @retuns result  `Array<string> | []`
  */
-
 export function nativeKeysIn(object: any) {
     const result = [];
     if (object != null) {
@@ -388,22 +345,12 @@ export function nativeKeysIn(object: any) {
 
 
 export function baseKeysIn(object: any) {
-
-
-
     if (!_.isObject(object)) {
         return nativeKeysIn(object);
     }
-
-
-
     let isProto = isPrototype(object),
         result = [];
-
-
     for (let  key in object) {
-
-
         if (
             !(
                 key == "constructor" &&
@@ -413,8 +360,6 @@ export function baseKeysIn(object: any) {
             result.push(key);
         }
     }
-
-
     return result;
 }
 
@@ -426,8 +371,37 @@ export function keysIn(object: any) {
 }
 
 
+export function copyObject(source, props, object, customizer) {
+
+    const isNew = !object;
+
+    object || (object = {});
 
 
+    let index = 0;
+    const length = props.length;
+
+
+    for (; index < length;) {
+        const key = props[index];
+
+
+        let newValue = customizer
+            ? customizer(object[key], source[key], key, object, source)
+            : undefined;
+
+
+        if (newValue === undefined) {
+            newValue = source[key];
+        }
+        if (isNew) {
+            baseAssignValue(object, key, newValue);
+        } else {
+            assignValue(object, key, newValue);
+        }
+    }
+    return object;
+}
 
 export function baseAssignIn(object, source) {
     return object && copyObject(source, keysIn(source), object);

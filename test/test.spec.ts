@@ -78,6 +78,7 @@ describe('判断函数测试 ---------', () => {
         expect(_.isNull([])).toBeFalsy(); //false
         expect(_.isNull("")).toBeFalsy(); //false
     });
+
     it('isNil', () => {
         expect(_.isNil(null)).toBeTruthy(); //true
         expect(_.isNil(1)).toBeFalsy(); //false
@@ -91,15 +92,10 @@ describe('判断函数测试 ---------', () => {
 
 describe('函数测试---------', () => {
 
-
     //  是否是原型对象
     it('isPrototype', () => {
         expect.soft(isPrototype({})).toBeFalsy()
     });
-
-
-
-
 
 
     it('baseCreate', () => {

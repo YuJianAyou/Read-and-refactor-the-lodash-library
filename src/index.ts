@@ -1,7 +1,35 @@
 /*
 *  参考lodash 实现 功能函数
+*
+* 大量的使用了this  后期没办法修改-------
  */
+import tag from "./tag"
 
+const {
+    argsTag,
+    undefinedTag,
+    arrayTag,
+    asyncTag,
+    boolTag,
+    dateTag,
+    domExcTag,
+    errorTag,
+    funcTag,
+    genTag,
+    mapTag,
+    numberTag,
+    nullTag,
+    objectTag,
+    promiseTag,
+    proxyTag,
+    regexpTag,
+    setTag,
+    stringTag,
+    symbolTag,
+    weakMapTag,
+    weakSetTag,
+    symToStringTag
+} = tag ;
 
 interface u {
 
@@ -22,6 +50,8 @@ interface u {
     isDate(value: any): boolean
 
     isNil(value: any): boolean
+
+    isBuffer(value: any): boolean
 }
 
 interface e {
@@ -38,6 +68,42 @@ type A<T> = Array<T>
 const CLONE_DEEP_FLAG = 1,
     CLONE_FLAT_FLAG = 2,
     CLONE_SYMBOLS_FLAG = 4;
+
+
+const nativeIsBuffer = (v: any) => {
+    // @ts-ignore
+    return Buffer.isBuffer(v)
+}
+
+const stubFalse = () => false;
+
+const allocUnsafe = (length: any) => {
+    // @ts-ignore
+    return Buffer ? Buffer.allocUnsafe : undefined
+}
+
+function getRawTag(value) {
+
+    const  isOwn = Object.hasOwnProperty.call(value, symToStringTag),
+        tag = value[symToStringTag];
+
+
+
+    try {
+        value[symToStringTag] = undefined;
+        var unmasked = true;
+    } catch (e) {}
+
+    var result = nativeObjectToString.call(value);
+    if (unmasked) {
+        if (isOwn) {
+            value[symToStringTag] = tag;
+        } else {
+            delete value[symToStringTag];
+        }
+    }
+    return result;
+}
 
 
 class F {
@@ -81,7 +147,20 @@ class F {
         ]
     }
 
+
+    getTag(value) {
+        if (value == null) {
+            return value === undefined ? undefinedTag : nullTag;
+        }
+
+        return symToStringTag && symToStringTag in Object(value)
+            ? getRawTag(value)
+            : objectToString(value);
+
+    }
+
 }
+
 
 class U extends F implements u {
 
@@ -100,7 +179,7 @@ class U extends F implements u {
     isObject(value: any) {
 
 
-        return value != null && typeof value === 'object' && !(value instanceof  Array);
+        return value != null && typeof value === 'object' && !(value instanceof Array);
     }
 
     isArray(value: any) {
@@ -125,6 +204,20 @@ class U extends F implements u {
 
     isNil(value: any) {
         return value == null;
+    }
+
+    isBuffer(value: any) {
+        // buffer 数据类型是 node.js 中有的.
+        // @ts-ignore
+        const b = Buffer ? Buffer.isBuffer : undefined;
+
+        if (b) {
+            return nativeIsBuffer(value)
+        } else {
+            return stubFalse()
+        }
+
+
     }
 
 }
@@ -164,31 +257,27 @@ class E extends U implements e {
         }
 
         /**
-         * 如果是数组
+         * 如果是数组 clone 数组
          */
         const isArr = this.isArray(value);
 
-
-        // 数组的话
         if (isArr) {
-
             result = this.initCloneArray(value);
-
             if (!isDeep) {
                 return this.copyArray(value, result);
             }
-
-
         } else {
 
-            var tag = getTag(value),
 
+            var tag = getTag(value),
                 isFunc = tag == funcTag || tag == genTag;
 
 
-            if (isBuffer(value)) {
-                return cloneBuffer(value, isDeep);
+            //   if type buffer  clone  buffer
+            if (this.isBuffer(value)) {
+                return this.cloneBuffer(value, isDeep);
             }
+
 
             if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
                 result = isFlat || isFunc ? {} : initCloneObject(value);
@@ -258,6 +347,21 @@ class E extends U implements e {
         return result;
     }
 
+    cloneBuffer(buffer: any, isDeep: number) {
+        //   浅复制
+        if (isDeep) {
+            return buffer.slice();
+        }
+
+        let length = buffer.length,
+            result = allocUnsafe
+                ? allocUnsafe(length)
+                : new buffer.constructor(length);
+
+        buffer.copy(result);
+
+        return result;
+    }
 }
 
 
@@ -266,7 +370,8 @@ class Redash extends E implements r {
     constructor() {
         super();
     }
-   /**
+
+    /**
      *  以及支持 arrays、array buffers、 booleans、 date objects、maps、 numbers， Object 对象, regexes, sets, strings, symbols, 以及 typed arrays。 arguments对象的可枚举属性会拷贝为普通对象。 一些不可拷贝的对象，例如error objects、functions, DOM nodes, 以及 WeakMaps 会返回空对象。
      * @param value
      */
@@ -278,5 +383,4 @@ class Redash extends E implements r {
 }
 
 
-
-export default  new  Redash()
+export default new Redash()

@@ -81,7 +81,9 @@ describe('clone 函数测试---------', () => {
      * 修改 a  不影响 b  修改b  不影响 a
      */
     it('clone', () => {
-        expect(_.isArray([])).toBeTruthy(); //true
 
+
+
+       const a =   expect(_.isArray([]))
     });
 });

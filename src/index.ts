@@ -4,6 +4,7 @@
 * 大量的使用了this  后期没办法修改-------
  */
 import tag from "./tag"
+import {nativeObjectToString, objectToString, isPrototype, baseCreate, getPrototype ,getRawTag} from "./tag"
 
 const {
     argsTag,
@@ -29,7 +30,7 @@ const {
     weakMapTag,
     weakSetTag,
     symToStringTag
-} = tag ;
+} = tag;
 
 interface u {
 
@@ -64,11 +65,26 @@ interface r {
 
 type A<T> = Array<T>
 
-
+/**
+ * - CLONE_DEEP_FLAG指示对象应深度克隆。如果将此标志与克隆函数一起使用，则会深度克隆对象，包括它的所有嵌套属性。
+ * - CLONE_FLAT_FLAG指示对象应扁平克隆。如果将此标志与克隆函数一起使用，则会扁平克隆对象，即只复制顶级属性，而不会复制嵌套属性。
+ * - CLONE_SYMBOLS_FLAG指示对象应复制Symbol属性。如果将此标志与克隆函数一起使用，则会复制对象的Symbol属性。
+ */
 const CLONE_DEEP_FLAG = 1,
     CLONE_FLAT_FLAG = 2,
     CLONE_SYMBOLS_FLAG = 4;
 
+
+function CLONE_OPTIONS(bitmask) {
+    const isDeep = bitmask & CLONE_DEEP_FLAG,
+        isFlat = bitmask & CLONE_FLAT_FLAG,
+        isFull = bitmask & CLONE_SYMBOLS_FLAG;
+    return {
+        isDeep,
+        isFlat,
+        isFull
+    }
+}
 
 const nativeIsBuffer = (v: any) => {
     // @ts-ignore
@@ -82,28 +98,7 @@ const allocUnsafe = (length: any) => {
     return Buffer ? Buffer.allocUnsafe : undefined
 }
 
-function getRawTag(value) {
 
-    const  isOwn = Object.hasOwnProperty.call(value, symToStringTag),
-        tag = value[symToStringTag];
-
-
-
-    try {
-        value[symToStringTag] = undefined;
-        var unmasked = true;
-    } catch (e) {}
-
-    var result = nativeObjectToString.call(value);
-    if (unmasked) {
-        if (isOwn) {
-            value[symToStringTag] = tag;
-        } else {
-            delete value[symToStringTag];
-        }
-    }
-    return result;
-}
 
 
 class F {
@@ -156,13 +151,27 @@ class F {
         return symToStringTag && symToStringTag in Object(value)
             ? getRawTag(value)
             : objectToString(value);
+    }
+
+    initCloneObject(object: any) {
+
+        return typeof object.constructor == "function" && !isPrototype(object)
+            ? baseCreate(getPrototype(object))
+            : {};
 
     }
 
+    copySymbolsIn(value: any,) {
+
+    }
+
+    copySymbols() {
+
+    }
 }
 
 
-class U extends F implements u {
+export class U extends F implements u {
 
     constructor() {
         super();
@@ -220,6 +229,11 @@ class U extends F implements u {
 
     }
 
+    isArguments () {
+
+    }
+
+
 }
 
 class E extends U implements e {
@@ -227,7 +241,7 @@ class E extends U implements e {
         super()
     }
 
-    baseClone(value: any, bitmask?: number, customizer?: () => {}, key?: string, object?: any, stack?: any) {
+    baseClone(value: any, bitmask?: number, customizer?: (value: any, key?: string, object?: any, stack?: any) => {}, key?: string, object?: any, stack?: any) {
 
         /**
          * bitmask & CLONE_DEEP_FLAG, 按位与  二进制比较
@@ -235,9 +249,17 @@ class E extends U implements e {
          * 即1。此外，需要注意负数在按位与运算中是以补码形式处理的，这可能会影响结果。
          */
         let result: any;
-        const isDeep = bitmask & CLONE_DEEP_FLAG,
-            isFlat = bitmask & CLONE_FLAT_FLAG,
-            isFull = bitmask & CLONE_SYMBOLS_FLAG;
+
+        /**
+         * @isDeep 是否为深度克隆
+         * @isFlat 对象应扁平克隆  只复制顶层对象
+         * @isFull 是否复制symbol
+         */
+        const {
+            isDeep,
+            isFlat,
+            isFull
+        } = CLONE_OPTIONS(bitmask)
 
 
         if (customizer) {
@@ -269,37 +291,64 @@ class E extends U implements e {
         } else {
 
 
-            var tag = getTag(value),
+            /**
+             *@params tag  `string` `[Object object]`
+             */
+            const tag = this.getTag(value),
                 isFunc = tag == funcTag || tag == genTag;
 
 
             //   if type buffer  clone  buffer
+
             if (this.isBuffer(value)) {
                 return this.cloneBuffer(value, isDeep);
             }
 
 
+            // if type Object  ||  tag  type is Argument || isFunc
+
             if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
-                result = isFlat || isFunc ? {} : initCloneObject(value);
+
+                //  result is  Object     {}    || clone {}
+                result = isFlat || isFunc ? {} : this.initCloneObject(value);
+
+                /**
+                 * @isDeep  Boolean     是否为深度克隆
+                 * @isFlat Boolean  是否复制为顶层对象
+                 * @baseAssignIn
+                 * @baseAssign
+                 */
                 if (!isDeep) {
                     return isFlat
-                        ? copySymbolsIn(value, baseAssignIn(result, value))
-                        : copySymbols(value, baseAssign(result, value));
+                        ? this.copySymbolsIn(value, baseAssignIn(result, value))
+                        : this.copySymbols(value, baseAssign(result, value));
                 }
+
+
             } else {
+
+
                 if (!cloneableTags[tag]) {
                     return object ? value : {};
                 }
+
+
                 result = initCloneByTag(value, tag, isDeep);
             }
+
+
         }
 
 
         stack || (stack = new Stack());
+
+
         var stacked = stack.get(value);
         if (stacked) {
             return stacked;
         }
+
+
         stack.set(value, result);
 
 
@@ -344,6 +393,7 @@ class E extends U implements e {
             );
         });
 
+
         return result;
     }
 
@@ -376,7 +426,7 @@ class Redash extends E implements r {
      * @param value
      */
     clone(value: any) {
-        return this.baseClone(value)
+        return this.baseClone(value, CLONE_SYMBOLS_FLAG)
     }
 
 

@@ -2,6 +2,9 @@ import {describe, it, expect} from 'vitest';
 import _ from "../src/index"
 
 
+import {baseCreate, isPrototype} from "../src/tag"
+
+
 describe('判断函数测试 ---------', () => {
 
     it('isArray', () => {
@@ -74,16 +77,17 @@ describe('判断函数测试 ---------', () => {
 });
 
 
-describe('clone 函数测试---------', () => {
+describe('函数测试---------', () => {
 
-    /**
-     * 函数测试为生成不同的 数据  两个数据为不等
-     * 修改 a  不影响 b  修改b  不影响 a
-     */
-    it('clone', () => {
-
+    //  是否是原型对象
+    it('isPrototype', () => {
+        expect.soft(isPrototype({})).toBeFalsy()
+    });
 
 
-       const a =   expect(_.isArray([]))
+    it('baseCreate', () => {
+
+
+        expect.soft(baseCreate({a:`name`})).toStrictEqual({});
     });
 });

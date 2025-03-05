@@ -2,7 +2,7 @@ import {describe, it, expect} from 'vitest';
 import _ from "../src/index"
 
 
-import {baseCreate, isPrototype} from "../src/tag"
+import {baseCreate, isPrototype, isFunction, baseGetTag, getRawTag ,isLength} from "../src/tag"
 
 
 describe('判断函数测试 ---------', () => {
@@ -32,10 +32,13 @@ describe('判断函数测试 ---------', () => {
 
     it('isObject', () => {
         expect(_.isObject({})).toBeTruthy(); //true
+        expect.soft(_.isObject(() => {
+        })).toBeTruthy(); //true
+        expect(_.isObject([])).toBeTruthy(); //true
+
         expect(_.isObject(false)).toBeFalsy(); //false
         expect(_.isObject(1)).toBeFalsy(); //false
         expect(_.isObject(null)).toBeFalsy(); //false
-        expect(_.isObject([])).toBeFalsy(); //false
         expect(_.isObject("")).toBeFalsy(); //false
     });
 
@@ -86,8 +89,60 @@ describe('函数测试---------', () => {
 
 
     it('baseCreate', () => {
-
-
-        expect.soft(baseCreate({a:`name`})).toStrictEqual({});
+        expect.soft(baseCreate({a: `name`})).toStrictEqual({});
     });
+
+    it('isFunction', () => {
+        // @ts-ignore
+        const p = Proxy
+
+        // @ts-ignore
+        async function f() {}
+
+        expect.soft(isFunction(f)).toBeTruthy();
+        expect.soft(isFunction(p)).toBeTruthy();
+        expect.soft(isFunction({})).toBeFalsy();
+
+    });
+
+    it('baseGetTag', () => {
+
+
+
+        expect.soft(baseGetTag(undefined)).toStrictEqual(`[object Undefined]`);
+        expect.soft(baseGetTag(null)).toStrictEqual(`[object Null]`);
+        expect.soft(baseGetTag(1)).toStrictEqual(`[object Number]`);
+        expect.soft(baseGetTag({})).toStrictEqual(`[object Object]`);
+        expect.soft(baseGetTag([])).toStrictEqual(`[object Array]`);
+        expect.soft(baseGetTag(true)).toStrictEqual(`[object Boolean]`);
+
+
+
+
+    });
+
+
+
+    it('isLength', () => {
+
+
+        expect.soft(isLength(1)).toBeTruthy()
+
+        expect.soft(isLength(-11)).toBeFalsy();
+
+    });
+
+
+
+
+    it('getRawTag', () => {
+
+
+        var a = 1;
+        expect.soft(getRawTag(a)).toStrictEqual(`[object Number]`);
+
+
+
+    });
+
 });

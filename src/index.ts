@@ -4,7 +4,7 @@
 * 大量的使用了this  后期没办法修改-------
  */
 import tag from "./tag"
-import {nativeObjectToString, objectToString, isPrototype, baseCreate, getPrototype ,getRawTag} from "./tag"
+import {nativeObjectToString, objectToString, isPrototype, baseCreate, getPrototype, getRawTag} from "./tag"
 
 const {
     argsTag,
@@ -37,6 +37,8 @@ interface u {
     isArray(value: any): boolean
 
     isBoolean(value: any): boolean
+
+    isBaseObject(value: any): boolean
 
     isObject(value: any): boolean
 
@@ -97,8 +99,6 @@ const allocUnsafe = (length: any) => {
     // @ts-ignore
     return Buffer ? Buffer.allocUnsafe : undefined
 }
-
-
 
 
 class F {
@@ -185,10 +185,16 @@ export class U extends F implements u {
         return typeof value === 'string';
     }
 
+
+    isBaseObject(value: any) {
+        const type = typeof value;
+        return value != null && type === 'object' && !(value instanceof Array);
+    }
+
+
     isObject(value: any) {
-
-
-        return value != null && typeof value === 'object' && !(value instanceof Array);
+        const type = typeof value;
+        return value != null && (type == "object" || type == "function");
     }
 
     isArray(value: any) {
@@ -229,7 +235,7 @@ export class U extends F implements u {
 
     }
 
-    isArguments () {
+    isArguments() {
 
     }
 

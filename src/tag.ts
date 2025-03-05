@@ -12,6 +12,8 @@ export const INFINITY = 1 / 0,
     MAX_SAFE_INTEGER = 9007199254740991,
     MAX_INTEGER = 1.7976931348623157e308,
     NAN = 0 / 0;
+
+
 export const argsTag = "[object Arguments]",
     undefinedTag = "[object Undefined]",
     arrayTag = "[object Array]",
@@ -164,17 +166,26 @@ function copyObject(source, props, object, customizer) {
 }
 
 
+/**
+ *
+ * @param value
+ */
+export function baseGetTag(value) {
 
-
-export   function baseGetTag(value) {
     if (value == null) {
         return value === undefined ? undefinedTag : nullTag;
     }
 
 
+    /**
+     * 这个逻辑是  symToStringTag  在 Object  是否有这个属性
+     *
+     */
     return symToStringTag && symToStringTag in Object(value)
         ? getRawTag(value)
         : objectToString(value);
+
+
 }
 
 
@@ -182,12 +193,12 @@ export   function baseGetTag(value) {
  * @getRawTag
  * @param value any
  * @returns  `string`  tag
+ *
+ *
+ * ----- luo
  */
-export  function getRawTag(value) {
-
+export function getRawTag(value) {
     // hasOwnProperty  是否有这个属性
-
-
     /**
      * @tag     String   | Undefined
      * @isOwn   Boolean
@@ -195,25 +206,17 @@ export  function getRawTag(value) {
     const isOwn = Object.hasOwnProperty.call(value, symToStringTag),
         tag = value[symToStringTag];
 
+    let unmasked: any
 
-    const unmasked = true;
-    value[symToStringTag] = undefined;
-
-
-    /**
-     * 不理解这个是在干嘛
-     */
-    // try {
-    //     value[symToStringTag] = undefined;
-    //     const  unmasked = true;
-    // } catch (e) {}
+    //  如果没有这个属性 -> 会报错  所以需要包裹 一下
+    try {
+        unmasked = true;
+        value[symToStringTag] = undefined;
+    } catch (err) {
+    }
 
 
-    /**
-     * @params result    `string tag`
-     */
     const result = nativeObjectToString.call(value);
-
 
     if (unmasked) {
         if (isOwn) {
@@ -221,21 +224,33 @@ export  function getRawTag(value) {
         } else {
             delete value[symToStringTag];
         }
-
     }
 
     return result;
 }
 
-export function isFunction(value, tag ?:any) {
 
+/**
+ * @isFunction
+ * @param value
+ * @param tag
+ * 1 isObject 是否是基本类型   是基本类型 就直接返回 false
+ * @tag  type String
+ */
+export function isFunction(value, tag ?: any) {
     if (!_.isObject(value)) {
         return false;
     }
+
+
     tag = baseGetTag(value);
+
+
     return (
         tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag
     );
+
+
 }
 
 /**
@@ -255,20 +270,16 @@ export function isLength(value: number) {
 }
 
 
-
-
-
 function isObjectLike(value) {
     return value != null && typeof value == "object";
 }
 
 
-export  function baseIsArguments(value) {
+export function baseIsArguments(value) {
 
     return isObjectLike(value) && baseGetTag(value) == argsTag;
 
 }
-
 
 
 function arrayLikeKeys(value, inherited) {
@@ -279,7 +290,6 @@ function arrayLikeKeys(value, inherited) {
         skipIndexes = isArr || isArg || isBuff || isType,
         result = skipIndexes ? baseTimes(value.length, String) : [],
         length = result.length;
-
 
 
     for (var key in value) {

@@ -3,82 +3,38 @@
 *
 * 大量的使用了this  后期没办法修改-------
  */
-import tag, {baseAssignIn} from "./tag"
+
+
+// @ts-ignore
+import {r, u, e, A} from './types';
+
+import {useTags} from "./tags"
+
 import {
-    nativeObjectToString,
+    baseAssignIn ,
     objectToString,
     isPrototype,
     baseCreate,
     getPrototype,
     getRawTag,
-    baseIsArguments ,
-    copyObject ,
-    baseAssign ,
-    getSymbols
-} from "./tag"
+    baseIsArguments,
+    copyObject,
+    baseAssign,
+    getSymbols,
+    getSymbolsIn ,
+} from "./func"
+
 
 const {
     argsTag,
     undefinedTag,
-    arrayTag,
-    asyncTag,
-    boolTag,
-    dateTag,
-    domExcTag,
-    errorTag,
     funcTag,
     genTag,
-    mapTag,
-    numberTag,
     nullTag,
     objectTag,
-    promiseTag,
-    proxyTag,
-    regexpTag,
-    setTag,
-    stringTag,
-    symbolTag,
-    weakMapTag,
-    weakSetTag,
-    symToStringTag
-} = tag;
+    symToStringTag,
+} = useTags();
 
-interface u {
-
-    isArray(value: any): boolean
-
-    isBoolean(value: any): boolean
-
-    isBaseObject(value: any): boolean
-
-    isObject(value: any): boolean
-
-    isString(value: any): boolean
-
-    isNumber(value: any): boolean
-
-    isNull(value: any): boolean
-
-    isRegExp(value: any): boolean
-
-    isDate(value: any): boolean
-
-    isNil(value: any): boolean
-
-    isBuffer(value: any): boolean
-
-    isArguments(value: any): boolean
-}
-
-interface e {
-    baseClone(): any
-}
-
-interface r {
-    clone(value: any): any
-}
-
-type A<T> = Array<T>
 
 /**
  * - CLONE_DEEP_FLAG指示对象应深度克隆。如果将此标志与克隆函数一起使用，则会深度克隆对象，包括它的所有嵌套属性。
@@ -175,11 +131,10 @@ class F {
     }
 
     copySymbolsIn(source: any, obejct: any) {
-
-        return copyObject(source, getSymbolsIn(source), object);
+        return copyObject(source, getSymbolsIn(source), obejct);
     }
 
-    copySymbols(source:any ,object:any) {
+    copySymbols(source: any, object: any) {
         return copyObject(source, getSymbols(source), object);
     }
 }
@@ -255,13 +210,10 @@ export class U extends F implements u {
 
 }
 
-class E
-    extends U
-    implements e {
+class E extends U implements e {
     constructor() {
         super()
     }
-
     baseClone(value: any, bitmask?: number, customizer?: (value: any, key?: string, object?: any, stack?: any) => {}, key?: string, object?: any, stack?: any) {
 
         /**
@@ -299,7 +251,6 @@ class E
         }
 
 
-
         /**
          * @isArr  `Boolean
          */
@@ -313,7 +264,6 @@ class E
             }
 
         } else {
-
 
 
             /**
@@ -331,11 +281,7 @@ class E
             }
 
 
-
-
             // if type Object  ||  tag  type is Argument || isFunc
-
-
 
 
             if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
@@ -343,10 +289,7 @@ class E
                 //  result is  Object     {}    || clone {}
 
 
-
                 result = (isFlat || isFunc) ? {} : this.initCloneObject(value);
-
-
 
 
                 /**
@@ -357,7 +300,6 @@ class E
                  */
 
 
-
                 // isFlat  ?是否扁平化 克隆 Symbols    ?
                 if (!isDeep) {
                     return isFlat
@@ -366,11 +308,7 @@ class E
                 }
 
 
-
-
-
             } else {
-
 
 
                 if (!cloneableTags[tag]) {
@@ -477,9 +415,6 @@ class Redash extends E implements r {
     clone(value: any) {
         return this.baseClone(value, CLONE_SYMBOLS_FLAG)
     }
-
-
-
 
 
 }

@@ -1,4 +1,5 @@
-import {describe, it, expect} from 'vitest';
+import {describe, it, expect,vi } from 'vitest';
+
 import _ from "../src/index"
 
 
@@ -10,9 +11,14 @@ import {
     getRawTag,
     isLength,
     isObjectLike,
-    baseIsArguments, baseTimes, nativeKeysIn, getSymbolsIn,propertyIsEnumerable
-} from "../src/tag"
-
+    baseIsArguments,
+    baseTimes,
+    nativeKeysIn,
+    getSymbolsIn,
+} from "../src/func"
+import {
+    propertyIsEnumerable,
+} from "../src/glob_variable"
 
 describe('判断函数测试 ---------', () => {
 
@@ -231,7 +237,6 @@ describe('函数测试---------', () => {
 
 
 describe('js自带属性测试  ', () => {
-
    //  propertyIsEnumerable() 方法返回一个布尔值，表示指定的属性是否是对象的可枚举自有属性。
     it('propertyIsEnumerable', () => {
         const test =  {
@@ -240,3 +245,6 @@ describe('js自带属性测试  ', () => {
         expect.soft(propertyIsEnumerable.call(test,"name")).toBeTruthy()
     })
 })
+
+
+

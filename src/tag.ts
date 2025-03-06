@@ -458,21 +458,19 @@ export function arrayFilter(array:Array<any>, predicate : (value: any, index: nu
 }
 
 
-export function getSymbols(object: any) {
-
+export function getSymbols(object:any) {
     return !nativeGetSymbols
         ? stubArray
-        : function (object: any) {
+        : (function (object: any) {
             if (object == null) {
                 return [];
             }
             object = Object(object);
-             function predicate (symbol :any) {
+            function predicate (symbol :any) {
                 return propertyIsEnumerable.call(object, symbol);
             }
             return arrayFilter(nativeGetSymbols(object), predicate);
-
-        };
+        })(object);
 }
 
 

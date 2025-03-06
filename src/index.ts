@@ -13,7 +13,8 @@ import {
     getRawTag,
     baseIsArguments ,
     copyObject ,
-    baseAssign
+    baseAssign ,
+    getSymbols
 } from "./tag"
 
 const {
@@ -178,9 +179,7 @@ class F {
         return copyObject(source, getSymbolsIn(source), object);
     }
 
-    copySymbols(source ,object) {
-
-
+    copySymbols(source:any ,object:any) {
         return copyObject(source, getSymbols(source), object);
     }
 }

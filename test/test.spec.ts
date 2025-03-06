@@ -10,7 +10,7 @@ import {
     getRawTag,
     isLength,
     isObjectLike,
-    baseIsArguments, baseTimes, nativeKeysIn,
+    baseIsArguments, baseTimes, nativeKeysIn, getSymbolsIn,propertyIsEnumerable
 } from "../src/tag"
 
 
@@ -185,8 +185,58 @@ describe('函数测试---------', () => {
     it("nativeKeysIn", () => {
         expect.soft(nativeKeysIn({name: `test`, age: `18`})).toStrictEqual([`name`, `age`])
     })
+    it("getSymbolsIn", () => {
+        // expect.soft(getSymbolsIn( {name:`test`})).toStrictEqual()
+    })
+
+
+
+
+
+
+
+
+    it("clone", () => {
+
+        const arr = [1,2,3];
+
+
+        const obj = {} ;
+
+        expect(_.clone( arr) ).not.toBe(arr); // toBe 检查是否是同一个引用
+
+
+        expect.soft(_.getTag( obj )).toStrictEqual(`[object Object]`)
+
+
+        expect.soft(_.initCloneObject( obj )).not.toBe(obj)
+
+
+
+        // expect(_.clone( () => {}) ).toStrictEqual({})
+
+
+
+    })
+
+
 
 
 
 
 });
+
+
+
+
+
+describe('js自带属性测试  ', () => {
+
+   //  propertyIsEnumerable() 方法返回一个布尔值，表示指定的属性是否是对象的可枚举自有属性。
+    it('propertyIsEnumerable', () => {
+        const test =  {
+            name : `test`
+        }
+        expect.soft(propertyIsEnumerable.call(test,"name")).toBeTruthy()
+    })
+})

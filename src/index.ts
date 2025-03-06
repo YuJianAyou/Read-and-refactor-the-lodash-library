@@ -11,7 +11,9 @@ import {
     baseCreate,
     getPrototype,
     getRawTag,
-    baseIsArguments
+    baseIsArguments ,
+    copyObject ,
+    baseAssign
 } from "./tag"
 
 const {
@@ -171,12 +173,15 @@ class F {
 
     }
 
-    copySymbolsIn(value: any, baseAssignIn1: any) {
+    copySymbolsIn(source: any, obejct: any) {
 
+        return copyObject(source, getSymbolsIn(source), object);
     }
 
-    copySymbols() {
+    copySymbols(source ,object) {
 
+
+        return copyObject(source, getSymbols(source), object);
     }
 }
 
@@ -285,7 +290,6 @@ class E
                 : customizer(value);
         }
 
-
         if (result !== undefined) {
             return result;
         }
@@ -295,17 +299,22 @@ class E
             return value;
         }
 
+
+
         /**
-         * 如果是数组 clone 数组
+         * @isArr  `Boolean
          */
         const isArr = this.isArray(value);
+
 
         if (isArr) {
             result = this.initCloneArray(value);
             if (!isDeep) {
                 return this.copyArray(value, result);
             }
+
         } else {
+
 
 
             /**
@@ -317,25 +326,40 @@ class E
 
             //   if type buffer  clone  buffer
 
+
             if (this.isBuffer(value)) {
                 return this.cloneBuffer(value, isDeep);
             }
 
 
+
+
             // if type Object  ||  tag  type is Argument || isFunc
+
+
+
 
             if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
 
                 //  result is  Object     {}    || clone {}
 
-                result = isFlat || isFunc ? {} : this.initCloneObject(value);
+
+
+                result = (isFlat || isFunc) ? {} : this.initCloneObject(value);
+
+
+
 
                 /**
                  * @isDeep  Boolean     是否为深度克隆
-                 * @isFlat Boolean  是否复制为顶层对象
+                 * @isFlat Boolean      是否复制为顶层对象
                  * @baseAssignIn
                  * @baseAssign
                  */
+
+
+
+                // isFlat  ?是否扁平化 克隆 Symbols    ?
                 if (!isDeep) {
                     return isFlat
                         ? this.copySymbolsIn(value, baseAssignIn(result, value))
@@ -343,7 +367,11 @@ class E
                 }
 
 
+
+
+
             } else {
+
 
 
                 if (!cloneableTags[tag]) {
@@ -443,9 +471,16 @@ class Redash extends E implements r {
      *  以及支持 arrays、array buffers、 booleans、 date objects、maps、 numbers， Object 对象, regexes, sets, strings, symbols, 以及 typed arrays。 arguments对象的可枚举属性会拷贝为普通对象。 一些不可拷贝的对象，例如error objects、functions, DOM nodes, 以及 WeakMaps 会返回空对象。
      * @param value
      */
+
+
+
+
     clone(value: any) {
         return this.baseClone(value, CLONE_SYMBOLS_FLAG)
     }
+
+
+
 
 
 }

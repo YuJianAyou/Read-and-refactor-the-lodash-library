@@ -12,7 +12,6 @@ export const INFINITY = 1 / 0,
     NAN = 0 / 0;
 
 
-
 export const argsTag = "[object Arguments]",
     undefinedTag = "[object Undefined]",
     arrayTag = "[object Array]",
@@ -42,7 +41,27 @@ const symToStringTag = Symbol ? Symbol.toStringTag : undefined;
 const arrayProto = Array.prototype;
 const funcProto = Function.prototype;
 const objectProto = Object.prototype;
+
 const objectCreate = Object.create;
+
+
+
+ // 方法返回一个布尔值，表示指定的属性是否是对象的可枚举自有属性。
+ export  const propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+
+
+
+
+
+
+// @ts-ignore
+// Object.getOwnPropertySymbols() 静态方法返回一个包含给定对象所有自有 Symbol 属性的数组
+const nativeGetSymbols = Object.getOwnPropertySymbols;
+
+
+
+
 
 
 export const baseCreate = (function () {
@@ -89,7 +108,6 @@ export function isPrototype(value: any) {
 }
 
 
-
 /**
  * @nativeObjectToString  Object.prototype.toString
  * @returns  `string
@@ -102,7 +120,7 @@ export const nativeObjectToString = objectProto.toString;
  * @param arg  any
  * Object(1)  会得到一个Object 包装后的类型  Number.value  === 1   true
  */
-export function getPrototype  (arg: any) {
+export function getPrototype(arg: any) {
     return Object.getPrototypeOf(Object(arg))
 }
 
@@ -112,7 +130,7 @@ export function getPrototype  (arg: any) {
  * @param value
  * @return  string  `[Object object]`
  */
-export  function objectToString(value: any)  {
+export function objectToString(value: any) {
     return nativeObjectToString.call(value);
 }
 
@@ -164,7 +182,7 @@ export function baseGetTag(value) {
  * @param value any
  * @returns  `string`  tag
  */
-export function getRawTag(value :any) {
+export function getRawTag(value: any) {
     // hasOwnProperty  是否有这个属性
     /**
      * @tag     String   | Undefined
@@ -204,20 +222,14 @@ export function getRawTag(value :any) {
  * 1 isObject 是否是基本类型   是基本类型 就直接返回 false
  * @tag  type String
  */
-export function isFunction(value, tag ?: any) {
+export function isFunction(value: any, tag ?: any) {
     if (!_.isObject(value)) {
         return false;
     }
-
-
     tag = baseGetTag(value);
-
-
     return (
         tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag
     );
-
-
 }
 
 /**
@@ -280,8 +292,17 @@ export function baseTimes(n: number, S: StringConstructor) {
 }
 
 
+/**
+ * @stubArray
+ * @returns  []
+ */
+export function stubArray() {
+    return [];
+}
 
-function arrayLikeKeys(value, inherited) {
+
+function arrayLikeKeys(value: any, inherited?: any) {
+
     const isArr = _.isArray(value),
         isArg = !isArr && _.isArguments(value),
         isBuff = !isArr && !isArg && _.isBuffer(value),
@@ -293,7 +314,7 @@ function arrayLikeKeys(value, inherited) {
 
     for (let key in value) {
         if (
-            (inherited || hasOwnProperty.call(value, key)) &&
+            (inherited || Object.hasOwnProperty.call(value, key)) &&
             !(
                 skipIndexes &&
                 // Safari 9 has enumerable `arguments.length` in strict mode.
@@ -317,15 +338,14 @@ function arrayLikeKeys(value, inherited) {
 
 
 /**
- * @isArrayLike
+ * @isArrayLike   这个函数 检查了  value  !==  null && length  是否是合理的值 && 不是函数
  * @param value any
  * @isLength
+ * @return Boolean
  */
 export function isArrayLike(value: any) {
     return value != null && isLength(value.length) && !isFunction(value);
 }
-
-
 
 
 /**
@@ -350,7 +370,7 @@ export function baseKeysIn(object: any) {
     }
     let isProto = isPrototype(object),
         result = [];
-    for (let  key in object) {
+    for (let key in object) {
         if (
             !(
                 key == "constructor" &&
@@ -371,7 +391,14 @@ export function keysIn(object: any) {
 }
 
 
-export function copyObject(source, props, object, customizer) {
+/**
+ * @copyObject
+ * @param source
+ * @param props
+ * @param object
+ * @param customizer
+ */
+export function copyObject(source:any, props:any, object:any, customizer?: (objectElement: any, sourceElement: any, key: any, object: any, source: any) => {}) {
 
     const isNew = !object;
 
@@ -384,7 +411,6 @@ export function copyObject(source, props, object, customizer) {
 
     for (; index < length;) {
         const key = props[index];
-
 
         let newValue = customizer
             ? customizer(object[key], source[key], key, object, source)
@@ -406,6 +432,82 @@ export function copyObject(source, props, object, customizer) {
 export function baseAssignIn(object, source) {
     return object && copyObject(source, keysIn(source), object);
 }
+
+function arrayPush(result: any[], symbols: (object: any) => (any[])) {
+
+}
+
+
+export function arrayFilter(array:Array<any>, predicate : (value: any, index: number, array: Array<any>) =>  boolean ) {
+    const length = array == null ? 0 : array.length;
+    const    result = [];
+    for (let index = 0 ,  value:any  =  0  , resIndex = 0; index < length; index++) {
+
+        value = array[index] ;
+        //  这段代码的意思是  如果对象中有这个值   就赋值
+        if (  predicate(value, index, array)  ) {
+            result[resIndex++] = value;
+        }
+    }
+
+
+
+
+
+    return result;
+}
+
+
+export function getSymbols(object: any) {
+
+    return !nativeGetSymbols
+        ? stubArray
+        : function (object: any) {
+            if (object == null) {
+                return [];
+            }
+            object = Object(object);
+             function predicate (symbol :any) {
+                return propertyIsEnumerable.call(object, symbol);
+            }
+            return arrayFilter(nativeGetSymbols(object), predicate);
+
+        };
+}
+
+
+export function getSymbolsIn() {
+
+    return !nativeGetSymbols ? stubArray : function (object: any)  {
+        const  result = [];
+
+        while (object) {
+            arrayPush(result, getSymbols(object));
+            object = getPrototype(object);
+        }
+        return result;
+    };
+
+
+}
+
+
+
+export   function baseKeys (object :any ) {
+
+}
+
+
+export function keys(object:any) {
+    return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+}
+
+
+export  function baseAssign ( object:any, source:any) {
+    return object && copyObject(source, keys(source), object);
+}
+
+
 
 
 export default {

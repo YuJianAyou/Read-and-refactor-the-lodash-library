@@ -61,18 +61,16 @@ function nodeUtil  () {
         return freeProcess && freeProcess.binding && freeProcess.binding("util");
     } catch (e) {}
 
-
 }
 
 
-
-
-
+/**
+ * @baseCreate
+ * @returns  Object
+ */
 export const baseCreate = (function () {
-
     function object() {
     }
-
     return function (proto: any) {
         //  如果不是一个对象  就返回 一个对象
         if (!(_.isObject(proto))) {

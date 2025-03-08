@@ -1,9 +1,40 @@
-export  function useTags () {
+export function useTags() {
     /**
      * javascript -
      * Object.getPrototypeOf(value).toString()  会得到js 以下的数据类型
      * @param * string
      */
+
+
+
+    const arrayBufferTag = "[object ArrayBuffer]",
+        dataViewTag = "[object DataView]",
+        float32Tag = "[object Float32Array]",
+        float64Tag = "[object Float64Array]",
+        int8Tag = "[object Int8Array]",
+        int16Tag = "[object Int16Array]",
+        int32Tag = "[object Int32Array]",
+        uint8Tag = "[object Uint8Array]",
+        uint8ClampedTag = "[object Uint8ClampedArray]",
+        uint16Tag = "[object Uint16Array]",
+        uint32Tag = "[object Uint32Array]";
+
+
+    const arrayBufferTagOb = {
+        arrayBufferTag,
+        dataViewTag,
+        float32Tag,
+        float64Tag,
+        int8Tag,
+        int16Tag,
+        int32Tag,
+        uint8Tag,
+        uint8ClampedTag,
+        uint16Tag,
+        uint32Tag,
+
+    }
+
 
     const argsTag = "[object Arguments]",
         undefinedTag = "[object Undefined]",
@@ -27,10 +58,9 @@ export  function useTags () {
         symbolTag = "[object Symbol]",
         weakMapTag = "[object WeakMap]",
         weakSetTag = "[object WeakSet]";
-    // @ts-ignore
-    const symToStringTag = Symbol ? Symbol.toStringTag : undefined;
 
-    return  {
+
+    const argsTagObj = {
         argsTag,
         undefinedTag,
         arrayTag,
@@ -53,7 +83,45 @@ export  function useTags () {
         symbolTag,
         weakMapTag,
         weakSetTag,
-        symToStringTag
+    }
+    // @ts-ignore
+    const symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+
+    const typedArrayTags = {};
+
+    typedArrayTags[float32Tag] = true;
+    typedArrayTags[float64Tag] = true;
+    typedArrayTags[int8Tag] = true;
+    typedArrayTags[int16Tag] = true;
+    typedArrayTags[int32Tag] = true;
+    typedArrayTags[uint8Tag] = true;
+    typedArrayTags[uint8ClampedTag] = true;
+    typedArrayTags[uint16Tag] = true;
+    typedArrayTags[uint32Tag] = true;
+
+    typedArrayTags[argsTag] = false;
+    typedArrayTags[arrayTag] = false;
+    typedArrayTags[arrayBufferTag] = false;
+    typedArrayTags[boolTag] = false;
+    typedArrayTags[dataViewTag] = false;
+    typedArrayTags[dateTag] = false;
+    typedArrayTags[errorTag] = false;
+    typedArrayTags[funcTag] = false;
+    typedArrayTags[mapTag] = false;
+    typedArrayTags[numberTag] = false;
+    typedArrayTags[objectTag] = false;
+    typedArrayTags[regexpTag] = false;
+    typedArrayTags[setTag] = false;
+    typedArrayTags[stringTag] = false;
+    typedArrayTags[weakMapTag] = false;
+    false;
+
+    return {
+        ...arrayBufferTagOb,
+        ...argsTagObj,
+        typedArrayTags,
+        symToStringTag,
     }
 
 }

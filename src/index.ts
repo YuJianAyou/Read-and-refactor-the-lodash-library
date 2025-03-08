@@ -139,7 +139,6 @@ class F {
     }
 }
 
-
 export class U extends F implements u {
 
     constructor() {
@@ -397,7 +396,6 @@ class E extends U implements e {
     }
 }
 
-
 class Redash extends E implements r {
 
     constructor() {
@@ -418,6 +416,5 @@ class Redash extends E implements r {
 
 
 }
-
 
 export default new Redash()

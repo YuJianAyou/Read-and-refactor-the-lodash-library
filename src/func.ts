@@ -15,6 +15,10 @@ import {
 } from "./glob_variable"
 
 
+import  {
+    reIsUint
+}from "./reg"
+
 const {
     argsTag,
     undefinedTag,
@@ -38,8 +42,28 @@ const {
     symbolTag,
     weakMapTag,
     weakSetTag,
-    symToStringTag
+    symToStringTag,
+    typedArrayTags
 } = useTags();
+
+
+
+
+
+function nodeUtil  () {
+    try {
+        var types =
+            freeModule && freeModule.require && freeModule.require("util").types;
+        if (types) {
+            return types;
+        }
+
+        return freeProcess && freeProcess.binding && freeProcess.binding("util");
+    } catch (e) {}
+
+
+}
+
 
 
 
@@ -251,8 +275,50 @@ export function baseIsArguments(value: any) {
 }
 
 
-export function isTypedArray(value: any) {
 
+
+const  freeExports =typeof exports == "object" && exports && !exports.nodeType && exports;
+
+
+
+const  freeModule = freeExports &&
+    typeof module == "object" &&
+    module &&
+    !module.nodeType &&
+    module;
+
+
+
+function baseUnary(func:(v:any) => {}) {
+    return function (value:any) {
+        return func(value);
+    };
+}
+
+
+
+
+function baseIsTypedArray(value) {
+    return (
+        isObjectLike(value) &&
+        isLength(value.length) &&
+        !!typedArrayTags[baseGetTag(value)]
+    );
+}
+
+
+function nodeIsTypedArray ( ) {
+    return   true
+}
+
+/**
+ * @isTypedArray  这个函数应该是 判断是否是  modules 对象
+ * @param value any
+ */
+export function isTypedArray(value: any) {
+ return     nodeIsTypedArray()
+        ? baseUnary(nodeIsTypedArray)
+        : baseIsTypedArray;
 }
 
 
@@ -281,15 +347,46 @@ export function stubArray() {
 }
 
 
+
+/**
+ * @isIndex  查看下value 是否为 number  &&  type  不等于 symbol 类型  && 是非负数的整数  && value 小于length
+ * @params value  `any
+ * @params length `number
+ * @returns Boolean
+ */
+function  isIndex (value:any, length :number) {
+    const  type = typeof value;
+    length = length == null ? MAX_SAFE_INTEGER : length;
+    return (
+        !!length &&
+        (type == "number" || (type != "symbol" && reIsUint.test(value))) &&
+        value > -1 &&
+        value % 1 == 0 &&
+        value < length
+    );
+}
+
 function arrayLikeKeys(value: any, inherited?: any) {
 
-    const isArr = _.isArray(value),
-        isArg = !isArr && _.isArguments(value),
-        isBuff = !isArr && !isArg && _.isBuffer(value),
-        isType = !isArr && !isArg && !isBuff && isTypedArray(value),
-        skipIndexes = isArr || isArg || isBuff || isType,
-        result = skipIndexes ? baseTimes(value.length, String) : [],
-        length = result.length;
+
+    // isArr 判断是否是数组
+    const isArr = _.isArray(value);
+
+    // isArg  不是数组? 是否是arguments
+    const isArg = !isArr && _.isArguments(value);
+
+    //  isBuff 不是数组?  不是arguments? 是否是 Buffer ?
+    const isBuff = !isArr && !isArg && _.isBuffer(value);
+
+    //  isType  不是数组?  不是arguments? 不是 Buffer ?
+    const isType = !isArr && !isArg && !isBuff && isTypedArray(value);
+
+
+    const skipIndexes = isArr || isArg || isBuff || isType;
+
+    const result = skipIndexes ? baseTimes(value.length, String) : [];
+
+    const length = result.length;
 
 
     for (let key in value) {
@@ -313,6 +410,8 @@ function arrayLikeKeys(value: any, inherited?: any) {
             result.push(key);
         }
     }
+
+
     return result;
 }
 
@@ -415,7 +514,7 @@ export function baseAssignIn(object, source) {
 }
 
 
-function arrayPush(result: any[], symbols: (object: any) => (any[])) {
+export function arrayPush(result: any[], symbols: (object: any) => (any[])) {
 
 }
 
@@ -455,7 +554,7 @@ export function getSymbols(object: any) {
 }
 
 
-export function getSymbolsIn(object:any) {
+export function getSymbolsIn(object: any) {
     return !nativeGetSymbols ? stubArray : (function (object: any) {
         const result = [];
         while (object) {
@@ -482,6 +581,4 @@ export function baseAssign(object: any, source: any) {
 }
 
 
-export default {
-    symToStringTag
-}
+

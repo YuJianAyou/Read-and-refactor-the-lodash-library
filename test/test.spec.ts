@@ -95,21 +95,14 @@ describe('判断函数测试 ---------', () => {
     });
 });
 
-
 describe('函数测试---------', () => {
-
     //  是否是原型对象
     it('isPrototype', () => {
         expect.soft(isPrototype({})).toBeFalsy()
     });
-
-
     it('baseCreate', () => {
         expect.soft(baseCreate({a: `name`})).toStrictEqual({});
     });
-
-
-
     it('isFunction', () => {
         // @ts-ignore
         const p = Proxy
@@ -123,9 +116,6 @@ describe('函数测试---------', () => {
         expect.soft(isFunction({})).toBeFalsy();
 
     });
-
-
-
     it('baseGetTag', () => {
 
 
@@ -138,34 +128,17 @@ describe('函数测试---------', () => {
 
 
     });
-
-
-
-
     it('isLength', () => {
         expect.soft(isLength(1)).toBeTruthy()
         expect.soft(isLength(-11)).toBeFalsy();
 
     });
-
-
-
-
     it('getRawTag', () => {
         expect.soft(getRawTag(1)).toStrictEqual(`[object Number]`);
     });
-
-
-
-
-
-
     it('isObjectLike', () => {
         expect.soft(isObjectLike([])).toBeTruthy();
     });
-
-
-
     it('baseIsArguments', () => {
         function test() {
             return arguments
@@ -173,35 +146,21 @@ describe('函数测试---------', () => {
 
         expect.soft(baseIsArguments(test())).toBeTruthy();
     });
-
-
     it("isArguments", () => {
         expect.soft(_.isArguments((function () {
             return arguments
         })())).toBeTruthy();
     })
-
-
     it("baseTimes", () => {
         const arr = [1, 2, 3]
         expect.soft(baseTimes(arr.length, String)).toStrictEqual([`0`, `1`, `2`])
     })
-
-
     it("nativeKeysIn", () => {
         expect.soft(nativeKeysIn({name: `test`, age: `18`})).toStrictEqual([`name`, `age`])
     })
     it("getSymbolsIn", () => {
         // expect.soft(getSymbolsIn( {name:`test`})).toStrictEqual()
     })
-
-
-
-
-
-
-
-
     it("clone", () => {
 
         const arr = [1,2,3];
@@ -224,12 +183,6 @@ describe('函数测试---------', () => {
 
 
     })
-
-
-
-
-
-
 });
 
 

@@ -60,7 +60,7 @@ export function useTags() {
         weakSetTag = "[object WeakSet]";
 
 
-    const argsTagObj = {
+    const argsTagObj: Record<string, string> = {
         argsTag,
         undefinedTag,
         arrayTag,
@@ -85,10 +85,12 @@ export function useTags() {
         weakSetTag,
     }
     // @ts-ignore
-    const symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+    // @ Symbol.toStringTag :string   =  `Symbol(Symbol.toStringTag)`
+    const symToStringTag: string | undefined = Symbol ? Symbol.toStringTag : undefined;
 
 
-    const typedArrayTags = {};
+    const typedArrayTags: Record<string, boolean> = {};
+
 
     typedArrayTags[float32Tag] = true;
     typedArrayTags[float64Tag] = true;
@@ -99,6 +101,7 @@ export function useTags() {
     typedArrayTags[uint8ClampedTag] = true;
     typedArrayTags[uint16Tag] = true;
     typedArrayTags[uint32Tag] = true;
+
 
     typedArrayTags[argsTag] = false;
     typedArrayTags[arrayTag] = false;
@@ -115,8 +118,6 @@ export function useTags() {
     typedArrayTags[setTag] = false;
     typedArrayTags[stringTag] = false;
     typedArrayTags[weakMapTag] = false;
-    false;
-
     return {
         ...arrayBufferTagOb,
         ...argsTagObj,
